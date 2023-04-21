@@ -1,0 +1,6 @@
+ir_measures>=0.3.2
+ir_datasets
+transformers
+more_itertools
+pandas
+smashed
