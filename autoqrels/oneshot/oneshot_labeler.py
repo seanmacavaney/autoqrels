@@ -1,9 +1,9 @@
 from typing import List
-import pandas as pd
-import ir_datasets
 import gzip
 import json
 from pathlib import Path
+import pandas as pd
+import ir_datasets
 from autoqrels import Labeler
 
 
@@ -25,20 +25,26 @@ class OneShotLabeler(Labeler):
     def infer_qrels(self, run: pd.DataFrame, qrels: pd.DataFrame) -> pd.DataFrame:
         qrels = qrels[qrels['relevance'] > 0]
         qrels = dict(iter(qrels.groupby('query_id')))
-        assert all(len(q) == 1 for q in qrels.values()), "oneshot labelers only support one relevant qrel per query"
+        assert all(len(q) == 1 for q in qrels.values()), \
+            "oneshot labelers only support one relevant qrel per query"
         run = dict(iter(run.groupby('query_id')))
         result = []
         for query_id, qrels_group in qrels.items():
             qrel = qrels_group.iloc[0]
-            result.append((query_id, qrel.doc_id, 1., '0')) # iteration=0 here means orig qrel, always gets relevance=1.
+            # iteration=0 here means orig qrel, always gets relevance=1.
+            result.append((query_id, qrel.doc_id, 1., '0'))
             if query_id in run:
                 unk_doc_ids = run[query_id]['doc_id']
                 unk_doc_ids = unk_doc_ids[unk_doc_ids != qrel.doc_id]
                 unk_doc_ids = list(unk_doc_ids)
                 inferred_rel = self.infer_oneshot(query_id, qrel.doc_id, unk_doc_ids)
-                result.extend(((query_id, did, rel, '1') for did, rel in zip(unk_doc_ids, inferred_rel))) # iteration=1 means inferred qrel
+                # iteration=1 means inferred qrel
+                result.extend(((query_id, did, rel, '1')
+                    for did, rel in zip(unk_doc_ids, inferred_rel)))
         self.flush_cache() # flush if cache is dirty
-        return pd.DataFrame(result, columns=['query_id', 'doc_id', 'relevance', 'iteration'])
+        return pd.DataFrame(
+            result,
+            columns=['query_id', 'doc_id', 'relevance', 'iteration'])
 
     def infer_oneshot(self, query_id: str, rel_doc_id: str, unk_doc_ids: List[str]) -> List[float]:
         # get results from cache

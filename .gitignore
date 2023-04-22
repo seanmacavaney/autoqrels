@@ -160,3 +160,8 @@ cython_debug/
 #.idea/
 
 .DS_Store
+
+# So we don't accidently commit the private run files
+dl19-runs
+dl20-runs
+dl21-runs
