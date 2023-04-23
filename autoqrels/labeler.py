@@ -29,10 +29,15 @@ class Labeler:
             _autoqrels_base_measure = M
 
             def runtime_impl(self, qrels, run):
-                inf_qrels = self._autoqrels_provider.infer_qrels(qrels, run)
+                inf_qrels = self._autoqrels_provider.infer_qrels(run, qrels)
                 evaluator = CwlEvaluator([self], inf_qrels, {(None, 0., 1.): [self]}, verify_gains=False)
                 return evaluator.iter_calc(run)
         Measure = _RuntimeMeasure()
         if 'max_rel' in _SUPPORTED_PARAMS:
             Measure = Measure(max_rel=1)
         return Measure
+
+
+class DummyLabeler(Labeler):
+    def infer_qrels(self, run: pd.DataFrame, qrels: pd.DataFrame) -> pd.DataFrame:
+        return qrels

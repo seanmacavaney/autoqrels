@@ -64,10 +64,6 @@ duot5.P@10
 duot5.RBP
 ```
 
-### Reproduction
-
-
-
 ## Citation
 
 If you use this work, please cite:
