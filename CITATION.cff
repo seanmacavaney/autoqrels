@@ -21,7 +21,6 @@ authors:
 identifiers:
   - type: url
     value: 'https://arxiv.org/abs/2302.11266'
-    description: ArXiv
   - type: doi
     value: 10.1145/3539618.3592032
 repository-code: 'https://github.com/seanmacavaney/autoqrels'
@@ -50,8 +49,11 @@ abstract: >-
   increases the reliability of t-tests due to filling holes
   in relevance assessments, giving researchers more
   confidence in results they find to be significant. 
-
   Alongside this work, we release an easy-to-use software
   package to enable the use of 1SL for evaluation of other
   ad-hoc collections or systems.
 license: Apache-2.0
+date-released: 2023-04-26
+year: 2023
+booktitle: Proceedings of the 46th International ACM SIGIR Conference on Research and Development in Information Retrieval
+
