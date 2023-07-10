@@ -45,7 +45,7 @@ class ZeroShotLabeler(Labeler):
         uncached_idxs = [idx for idx, r in enumerate(res) if r is None]
         if uncached_idxs:
             uncached_dids = [unk_doc_ids[idx] for idx in uncached_idxs]
-            uncached_res = self._infer_zeroshot(query_id, rel_doc_id, uncached_dids)
+            uncached_res = self._infer_zeroshot(query_id, uncached_dids)
             for did, idx, score in zip(uncached_dids, uncached_idxs, uncached_res):
                 res[idx] = score
                 c[did] = score
