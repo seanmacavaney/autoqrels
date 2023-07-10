@@ -3,6 +3,14 @@
 We provide code for both ["last-metre" and "complete" reproduction](https://dl.acm.org/doi/10.1145/3477495.3531721)
 of the paper ["One-Shot Labeling for Automatic Relevnace Estimation"](https://arxiv.org/abs/2302.11266).
 
+## Dependencies
+
+Install the following extra dependencies needed for reproduction:
+
+```bash
+pip install python-terrier scikit-learn matplotlib
+```
+
 ## Data
 
 You'll need the submitted TREC runs to reproduce our results. These can be downloaded
@@ -23,6 +31,24 @@ the four 1SLs explored in the paper. The generated figure is saved to [`figure1.
 **Table 2:** [`table2.py`](table2.py) generates the correlation, FPR, and FNR results presented
 in Table 2. The latex is printed to stdout.
 
+```bash
+python figure1.py
+python table2.py
+```
+
 ## Complete Reproduction
 
-Coming soon!
+This setting reproduces the relevance estimations:
+
+```bash
+python compute_scores.py duot5 --replace
+python compute_scores.py duoprompt --replace
+# coming soon: MaxRep models
+# python compute_scores.py maxrep.bm25-128 --replace
+# python compute_scores.py maxrep.tcthnp-128 --replace
+```
+
+Running `compute_scores.py` will **replace** the relevance score cache files. (If you want to restore,
+you can check out from the main branch.) This will take some time
+
+Once you run for all the models, follow the same steps above for Last-Metre Reproduction.
