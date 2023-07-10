@@ -12,7 +12,7 @@ logger = ir_datasets.log.easy()
 
 
 class DuoT5(OneShotLabeler):
-    def __init__(self, dataset, model_name='castorini/duot5-3b-msmarco', tokeniser_name='t5-3b', device=None, batch_size=16, verbose=False, query_field=None, doc_field=None, cache_path=None):
+    def __init__(self, dataset, model_name='castorini/duot5-3b-msmarco', tokeniser_name='t5-3b', device=None, batch_size=8, verbose=False, query_field=None, doc_field=None, cache_path=None):
         super().__init__(cache_path=cache_path)
         self.model_name = model_name
         self.tokeniser = AutoTokenizer.from_pretrained(tokeniser_name, model_max_length=512)

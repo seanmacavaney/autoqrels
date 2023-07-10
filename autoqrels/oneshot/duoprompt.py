@@ -22,7 +22,7 @@ class DuoPrompt(OneShotLabeler):
         "Is passage B as relevant as passage A? </s>"
     )
 
-    def __init__(self, dataset, backbone='google/flan-t5-xl', device=None, batch_size=16, verbose=False, query_field=None, doc_field=None, max_src_len=330, cache_path=None):
+    def __init__(self, dataset, backbone='google/flan-t5-xl', device=None, batch_size=8, verbose=False, query_field=None, doc_field=None, max_src_len=330, cache_path=None):
         super().__init__(cache_path=cache_path)
         self.backbone = backbone
         self.tokeniser = AutoTokenizer.from_pretrained(backbone)
