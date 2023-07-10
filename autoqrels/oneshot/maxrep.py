@@ -1,7 +1,4 @@
 from typing import List
-import more_itertools
-import torch
-from transformers import T5ForConditionalGeneration, AutoTokenizer
 from . import OneShotLabeler
 
 
