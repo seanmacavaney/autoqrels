@@ -62,7 +62,7 @@ Answer:"""
         fields = ['query_text', 'rel_doc_text', 'unk_doc_text']
         m_jinja = smashed.mappers.JinjaMapper(jinja=self.PROMPT)
         m_txt2word = smashed.mappers.TextToWordsMapper(
-            fields=fields,
+            fields=(),
         )
         prompt_length = max_src_len - len(
             m_txt2word.splitter(m_jinja.template_text[0])
