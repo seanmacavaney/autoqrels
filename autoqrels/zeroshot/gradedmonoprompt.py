@@ -69,13 +69,6 @@ Answer:"""
         )
         self.encode_mapper = (
             m_txt2word
-            >> smashed.mappers.TruncateMultipleNestedFieldsMapper(
-                fields_to_truncate=fields,
-                max_length=prompt_length,
-            )
-            >> smashed.mappers.WordsToTextMapper(
-                fields=fields,
-            )
             >> m_jinja
             >> smashed.mappers.TokenizerMapper(
                 tokenizer=self.tokeniser,
