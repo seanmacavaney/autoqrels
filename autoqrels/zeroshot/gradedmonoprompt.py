@@ -121,7 +121,7 @@ Answer:"""
             autoqrels.text.query_text(self.dataset, query_id, self.query_field),
             autoqrels.text.doc_text(self.dataset, unk_doc_ids, self.doc_field))
 
-    def infer_zeroshot_text(self, query_text: str, unk_doc_text: List[str]) -> List[float]:
+    def infer_zeroshot_text(self, query_text: str, unk_doc_texts: List[str]) -> List[float]:
         prompt_data = self.encode_mapper.map([
             {'query_text': query_text, 'unk_doc_text': unk_doc_text}
             for unk_doc_text in unk_doc_texts
