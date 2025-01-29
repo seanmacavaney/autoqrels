@@ -45,7 +45,7 @@ Question: {{ query_text }}
 Passage: {{ unk_doc_text }}
 Answer:"""
 
-    def __init__(self, dataset, backbone='google/flan-t5-xl', device=None, batch_size=16, verbose=False, query_field=None, doc_field=None, max_src_len=330, cache_path=None):
+    def __init__(self, dataset, backbone='google/flan-t5-xl', device=None, batch_size=16, verbose=False, query_field=None, doc_field=None, max_src_len=330, cache_path=None, prompt=PROMPT):
         super().__init__(cache_path=cache_path)
         self.backbone = backbone
         self.tokeniser = AutoTokenizer.from_pretrained(backbone)
@@ -60,7 +60,7 @@ Answer:"""
         self.query_field = query_field
         self.doc_field = doc_field
         fields = ['query_text', 'rel_doc_text', 'unk_doc_text']
-        m_jinja = smashed.mappers.JinjaMapper(jinja=self.PROMPT)
+        m_jinja = smashed.mappers.JinjaMapper(jinja=prompt)
         m_txt2word = smashed.mappers.TextToWordsMapper(
             fields=(),
         )
