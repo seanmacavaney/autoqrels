@@ -7,6 +7,7 @@ import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import smashed
 import autoqrels
+import pandas as pd
 from . import ZeroShotLabeler
 
 
