@@ -2,6 +2,7 @@ from functools import cached_property
 from typing import List
 import ir_datasets
 import more_itertools
+from tqdm import tqdm
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import smashed
@@ -114,6 +115,16 @@ Answer:"""
             autoqrels.text.query_text(self.dataset, query_id, self.query_field),
             autoqrels.text.doc_text(self.dataset, unk_doc_ids, self.doc_field))
 
+    def predict(self, df):
+        ret = []
+        for query in tqdm(df['query'].unique()):
+            df_for_query = df[df['query'] == query].copy()
+            docs = [i['unknown'] for _, i in df_for_query.iterrows()]
+            df_for_query['probability_relevant'] = self.infer_zeroshot_text(query, docs)
+            ret.append(df_for_query)
+
+        return pd.concat(ret)
+    
     def infer_zeroshot_text(self, query_text: str, unk_doc_texts: List[str]) -> List[float]:
         prompt_data = self.encode_mapper.map([
             {'query_text': query_text, 'unk_doc_text': unk_doc_text}
