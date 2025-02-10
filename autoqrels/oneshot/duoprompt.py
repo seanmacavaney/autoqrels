@@ -6,6 +6,7 @@ import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import smashed
 import autoqrels
+from tqdm import tqdm
 from . import OneShotLabeler
 
 
@@ -22,7 +23,7 @@ class DuoPrompt(OneShotLabeler):
         "Is passage B as relevant as passage A? </s>"
     )
 
-    def __init__(self, dataset, backbone='google/flan-t5-xl', device=None, batch_size=8, verbose=False, query_field=None, doc_field=None, max_src_len=330, cache_path=None):
+    def __init__(self, dataset, backbone='google/flan-t5-xl', device=None, batch_size=8, verbose=False, query_field=None, doc_field=None, max_src_len=330, cache_path=None, prompt=PROMPT):
         super().__init__(cache_path=cache_path)
         self.backbone = backbone
         self.tokeniser = AutoTokenizer.from_pretrained(backbone)
@@ -37,7 +38,8 @@ class DuoPrompt(OneShotLabeler):
         self.query_field = query_field
         self.doc_field = doc_field
         fields = ['query_text', 'rel_doc_text', 'unk_doc_text']
-        m_jinja = smashed.mappers.JinjaMapper(jinja=self.PROMPT)
+        self.prompt = prompt
+        m_jinja = smashed.mappers.JinjaMapper(jinja=self.prompt)
         m_txt2word = smashed.mappers.TextToWordsMapper(
             fields=fields,
         )
@@ -92,6 +94,43 @@ class DuoPrompt(OneShotLabeler):
     @cached_property
     def model(self):
         return AutoModelForSeq2SeqLM.from_pretrained(self.backbone).eval().to(self.device)
+
+    def _group_per_query_and_relevant(self, df):
+        inps = {}
+
+        for _, i in df.iterrows():
+            if i['query'] not in inps:
+                inps[i['query']] = {}
+            if i['relevant'] not in inps[i['query']]:
+                inps[i['query']][i['relevant']] = {}
+
+            inps[i['query']][i['relevant']][i['id']] = i['unknown']
+        return inps
+
+    def _batches(self, df):
+        grouped = self._group_per_query_and_relevant(df)
+        ret = []
+        for query in grouped.keys():
+            for relevant in grouped[query]:
+                tmp = {'query': query, 'relevant': relevant, 'dids': [], 'texts': []}
+                for did, text in grouped[query][relevant].items():
+                    tmp['dids'].append(did)
+                    tmp['texts'].append(text)
+                ret.append(tmp)
+        return ret
+
+    def predict(self, df):
+        ret = {}
+        df = df.copy()
+        for i in tqdm(self._batches(df)):
+            preds = self.infer_oneshot_text(i['query'], i['relevant'], i['texts'])
+            assert len(preds) == len(i['dids'])
+            for id, pred in zip(i['dids'], preds):
+                assert id not in ret
+                ret[id] = pred
+        df['probability_relevant'] = df['id'].apply(lambda i: ret[i])
+
+        return df
 
     def _infer_oneshot(self, query_id: str, rel_doc_id: str, unk_doc_ids: List[str]) -> List[float]:
         return self.infer_oneshot_text(

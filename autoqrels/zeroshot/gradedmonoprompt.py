@@ -2,10 +2,12 @@ from functools import cached_property
 from typing import List
 import ir_datasets
 import more_itertools
+from tqdm import tqdm
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import smashed
 import autoqrels
+import pandas as pd
 from . import ZeroShotLabeler
 
 
@@ -45,7 +47,7 @@ Question: {{ query_text }}
 Passage: {{ unk_doc_text }}
 Answer:"""
 
-    def __init__(self, dataset, backbone='google/flan-t5-xl', device=None, batch_size=16, verbose=False, query_field=None, doc_field=None, max_src_len=330, cache_path=None):
+    def __init__(self, dataset, backbone='google/flan-t5-xl', device=None, batch_size=16, verbose=False, query_field=None, doc_field=None, max_src_len=330, cache_path=None, prompt=PROMPT):
         super().__init__(cache_path=cache_path)
         self.backbone = backbone
         self.tokeniser = AutoTokenizer.from_pretrained(backbone)
@@ -60,22 +62,15 @@ Answer:"""
         self.query_field = query_field
         self.doc_field = doc_field
         fields = ['query_text', 'rel_doc_text', 'unk_doc_text']
-        m_jinja = smashed.mappers.JinjaMapper(jinja=self.PROMPT)
+        m_jinja = smashed.mappers.JinjaMapper(jinja=prompt)
         m_txt2word = smashed.mappers.TextToWordsMapper(
-            fields=fields,
+            fields=(),
         )
         prompt_length = max_src_len - len(
             m_txt2word.splitter(m_jinja.template_text[0])
         )
         self.encode_mapper = (
             m_txt2word
-            >> smashed.mappers.TruncateMultipleNestedFieldsMapper(
-                fields_to_truncate=fields,
-                max_length=prompt_length,
-            )
-            >> smashed.mappers.WordsToTextMapper(
-                fields=fields,
-            )
             >> m_jinja
             >> smashed.mappers.TokenizerMapper(
                 tokenizer=self.tokeniser,
@@ -121,7 +116,17 @@ Answer:"""
             autoqrels.text.query_text(self.dataset, query_id, self.query_field),
             autoqrels.text.doc_text(self.dataset, unk_doc_ids, self.doc_field))
 
-    def infer_zeroshot_text(self, query_text: str, unk_doc_text: List[str]) -> List[float]:
+    def predict(self, df):
+        ret = []
+        for query in tqdm(df['query'].unique()):
+            df_for_query = df[df['query'] == query].copy()
+            docs = [i['unknown'] for _, i in df_for_query.iterrows()]
+            df_for_query['probability_relevant'] = self.infer_zeroshot_text(query, docs)
+            ret.append(df_for_query)
+
+        return pd.concat(ret)
+    
+    def infer_zeroshot_text(self, query_text: str, unk_doc_texts: List[str]) -> List[float]:
         prompt_data = self.encode_mapper.map([
             {'query_text': query_text, 'unk_doc_text': unk_doc_text}
             for unk_doc_text in unk_doc_texts
