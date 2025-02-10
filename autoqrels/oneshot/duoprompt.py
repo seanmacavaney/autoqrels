@@ -95,7 +95,7 @@ class DuoPrompt(OneShotLabeler):
     def model(self):
         return AutoModelForSeq2SeqLM.from_pretrained(self.backbone).eval().to(self.device)
 
-    def _group_per_query_and_relevant(df):
+    def _group_per_query_and_relevant(self, df):
         inps = {}
 
         for _, i in df.iterrows():
