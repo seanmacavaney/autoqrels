@@ -122,7 +122,7 @@ class DuoPrompt(OneShotLabeler):
     def predict(self, df):
         ret = {}
         df = df.copy()
-        for i in tqdm(_batches(df)):
+        for i in tqdm(self._batches(df)):
             preds = self.infer_oneshot_text(i['query'], i['relevant'], i['texts'])
             assert len(preds) == len(i['dids'])
             for id, pred in zip(i['dids'], preds):
