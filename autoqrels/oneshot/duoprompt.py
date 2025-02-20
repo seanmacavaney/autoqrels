@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import List
+from typing import List, Dict
 import ir_datasets
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
