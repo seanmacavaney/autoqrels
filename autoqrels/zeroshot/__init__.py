@@ -1,2 +1,4 @@
-from .zeroshot_labeler import ZeroShotLabeler
-from .gradedmonoprompt import GradedMonoPrompt
+from autoqrels.zeroshot.zeroshot_labeler import ZeroShotLabeler
+from autoqrels.zeroshot.gradedmonoprompt import GradedMonoPrompt
+
+__all__ = ['ZeroShotLabeler', 'GradedMonoPrompt']

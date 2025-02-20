@@ -1,7 +1,6 @@
 from functools import cached_property
 from typing import List
 import ir_datasets
-import more_itertools
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 import smashed
