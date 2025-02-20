@@ -1,3 +1,5 @@
+pyterrier>=0.13.0
+pyterrier-caching>=0.4.0
 ir_measures>=0.3.2
 ir_datasets
 transformers
@@ -5,4 +7,3 @@ more_itertools
 pandas
 smashed
 torch
-pyterrier-caching>=0.4.0
