@@ -4,3 +4,4 @@ transformers
 more_itertools
 pandas
 smashed
+torch
