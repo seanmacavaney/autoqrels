@@ -5,3 +5,4 @@ more_itertools
 pandas
 smashed
 torch
+pyterrier-caching>=0.4.0
